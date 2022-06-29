@@ -16,7 +16,7 @@ void main() {
     ),
     initialRoute: '/',
     routes: {
-      '/': (context) => const LoginView(),
+      '/': (context) => NotesView(),
       '/login': (context) => const LoginView(),
       '/register': (context) => const RegisterView(),
     },
@@ -46,9 +46,10 @@ class HomePage extends StatelessWidget {
               switch (snapshot.connectionState) {
                 case ConnectionState.done:
                   final user = FirebaseAuth.instance.currentUser;
+                  print('hi, $user?.emailVerified');
                   if (user != null) {
                     if (user.emailVerified) {
-                      print('Email verified!');
+                      return NotesView();
                       //return const Text('Email verified Done');
                     } else {
                       return const VerifyEmailView();
@@ -56,10 +57,46 @@ class HomePage extends StatelessWidget {
                   } else {
                     return const LoginView();
                   }
-                  return const Text('Done');
+
                 default:
                   return const CircularProgressIndicator();
               }
             }));
+  }
+}
+
+enum MenuAction { logout }
+
+class NotesView extends StatefulWidget {
+  NotesView({Key? key}) : super(key: key);
+
+  @override
+  State<NotesView> createState() => _NotesViewState();
+}
+
+class _NotesViewState extends State<NotesView> {
+  String _selectedMenuItem = '';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main UI'),
+        actions: [
+          PopupMenuButton<MenuAction>(
+              onSelected: (MenuAction item) {
+                setState(() {
+                  _selectedMenuItem = item.name;
+                });
+              },
+              itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem<MenuAction>(
+                      value: MenuAction.logout,
+                      child: Text('Logout'),
+                    ),
+                  ]),
+        ],
+      ),
+      body: Text('Hello from Main UI'),
+    );
   }
 }
