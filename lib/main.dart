@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:project2/constants/routes.dart';
+import 'package:project2/firebase_options.dart';
 import 'package:project2/views/verify_email_view.dart';
-import 'firebase_options.dart';
 import 'views/login_view.dart';
 import 'views/register_view.dart';
 import 'dart:developer' as devtools show log;
@@ -22,6 +22,7 @@ void main() {
       notesRoute: (context) => NotesView(),
       loginRoute: (context) => const LoginView(),
       registerRoute: (context) => const RegisterView(),
+      verifyEmailView: (context) => const VerifyEmailView(),
     },
   ));
 }
@@ -35,36 +36,30 @@ class HomePage extends StatelessWidget {
   );
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Login'),
+    return FutureBuilder(
+        future: Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
         ),
-        body: FutureBuilder(
-            future: _calculation,
-            builder: (context, snapshot) {
-              Firebase.initializeApp(
-                options: DefaultFirebaseOptions.currentPlatform,
-              );
-              devtools.log('Firebase.initializeApp');
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  final user = FirebaseAuth.instance.currentUser;
-                  print('main: --- $user?.emailVerified');
-                  if (user != null) {
-                    if (user.emailVerified) {
-                      return NotesView();
-                      //return const Text('Email verified Done');
-                    } else {
-                      return const LoginView(); //VerifyEmailView();<--- lATER!
-                    }
-                  } else {
-                    return const LoginView();
-                  }
-
-                default:
-                  return const CircularProgressIndicator();
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              final user = FirebaseAuth.instance.currentUser;
+              devtools.log('main:47: --- ${user?.emailVerified}');
+              if (user != null) {
+                if (user.emailVerified) {
+                  return NotesView();
+                  //return const Text('Email verified Done');
+                } else {
+                  return const VerifyEmailView(); //<--- lATER!
+                }
+              } else {
+                return const LoginView();
               }
-            }));
+
+            default:
+              return const CircularProgressIndicator();
+          }
+        });
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:project2/constants/routes.dart';
 import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
+import '../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -110,26 +111,4 @@ class _LoginViewState extends State<LoginView> {
               }
             }));
   }
-}
-
-Future<void> showErrorDialog(
-  BuildContext context,
-  String text,
-) {
-  return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Some error occured'),
-          content: Text(text),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Ok'),
-            ),
-          ],
-        );
-      });
 }
