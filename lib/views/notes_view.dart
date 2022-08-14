@@ -4,6 +4,7 @@ import 'package:project2/services/auth/auth_service.dart';
 import 'dart:developer' as devtools show log;
 
 import '../enums/menu_action.dart';
+import '../services/crud/notes_service.dart';
 
 class NotesView extends StatefulWidget {
   NotesView({Key? key}) : super(key: key);
@@ -13,7 +14,20 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  String _selectedMenuItem = '';
+  late final NoteService _noteService;
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+  @override
+  void initState() {
+    _noteService = NoteService();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _noteService.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +51,7 @@ class _NotesViewState extends State<NotesView> {
                 }
 
                 setState(() {
-                  _selectedMenuItem = item.name;
+                  //_selectedMenuItem = item.name;
                 });
               },
               itemBuilder: (BuildContext context) => [
@@ -48,7 +62,27 @@ class _NotesViewState extends State<NotesView> {
                   ]),
         ],
       ),
-      body: Text('Hello from Main UI'),
+      body: FutureBuilder(
+          future: _noteService.getOrCreateUser(email: userEmail),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
+                  stream: _noteService.allNotes,
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return const Text(
+                            'Waiting for all notes'); // TODO: Handle this case.
+                      default:
+                        return const CircularProgressIndicator();
+                    }
+                  },
+                ); // TODO: Handle this case.
+              default:
+                return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 }
