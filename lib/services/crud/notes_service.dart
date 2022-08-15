@@ -10,6 +10,11 @@ import './crud_exceptions.dart';
 class NoteService {
   Database? _db;
   List<DatabaseNote> _notes = [];
+
+  static final NoteService _shared = NoteService._sharedInstance();
+  NoteService._sharedInstance();
+  factory NoteService() => _shared;
+
   final _notesStreamController =
       StreamController<List<DatabaseNote>>.broadcast();
 
@@ -277,7 +282,7 @@ const textColumn = 'text';
 const isSyncWithCloudColumn = 'is_sync_with_cloud';
 
 const createNoteTable = '''
-            CREATE TABLE "note" IF NOT EXISTS (
+            CREATE TABLE IF NOT EXISTS "note" (
               "id"	INTEGER NOT NULL,
               "user_id"	INTEGER NOT NULL,
               "text"	TEXT,
@@ -287,7 +292,7 @@ const createNoteTable = '''
             );
             ''';
 const createUserTable = '''
-        CREATE TABLE "user" IF NOT EXISTS (
+        CREATE TABLE IF NOT EXISTS "user" (
           "id"	INTEGER NOT NULL,
           "email"	TEXT NOT NULL UNIQUE,
           PRIMARY KEY("id" AUTOINCREMENT)
