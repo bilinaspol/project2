@@ -35,6 +35,12 @@ class _NotesViewState extends State<NotesView> {
       appBar: AppBar(
         title: const Text('Your notes'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuAction>(
               onSelected: (MenuAction item) async {
                 switch (item) {
@@ -42,9 +48,10 @@ class _NotesViewState extends State<NotesView> {
                     final shouldLogout = await showLogOutDialog(context);
                     if (shouldLogout) {
                       await AuthService.firebase().logOut();
-
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        loginRoute,
+                        (_) => false,
+                      );
                     }
                     devtools.log('notes_view:34: ${shouldLogout.toString()}');
                     break;
